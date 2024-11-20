@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 300px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        input {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .edit,
+        .delete {
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #007bff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Expense Tracker</h1>
+        <form id="expense-form">
+            <input type="text" id="description" placeholder="Description" required>
+            <input type="number" id="amount" placeholder="Amount" required>
+            <button type="submit">Add Expense</button>
+        </form>
+        <ul id="expense-list"></ul>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const expenseForm = document.getElementById('expense-form');
+            const descriptionInput = document.getElementById('description');
+            const amountInput = document.getElementById('amount');
+            const expenseList = document.getElementById('expense-list');
+            let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+
+            const renderExpenses = () => {
+                expenseList.innerHTML = '';
+                expenses.forEach((expense, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        ${expense.description} - $${expense.amount}
+                        <button class="edit" onclick="editExpense(${index})">Edit</button>
+                        <button class="delete" onclick="deleteExpense(${index})">Delete</button>
+                    `;
+                    expenseList.appendChild(li);
+                });
+            };
+
+            const saveExpenses = () => {
+                localStorage.setItem('expenses', JSON.stringify(expenses));
+                renderExpenses();
+            };
+
+            expenseForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const newExpense = {
+                    description: descriptionInput.value,
+                    amount: parseFloat(amountInput.value)
+                };
+                expenses.push(newExpense);
+                saveExpenses();
+                expenseForm.reset();
+            });
+
+            window.editExpense = (index) => {
+                const expense = expenses[index];
+                descriptionInput.value = expense.description;
+                amountInput.value = expense.amount;
+                expenses.splice(index, 1);
+                saveExpenses();
+            };
+
+            window.deleteExpense = (index) => {
+                expenses.splice(index, 1);
+                saveExpenses();
+            };
+
+            renderExpenses();
+        });
+    </script>
+</body>
+
+</html>
